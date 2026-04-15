@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的 - 二手书集市</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-book-open text-2xl text-indigo-600"></i>
+                <span class="text-xl font-bold text-gray-800">二手书集市</span>
+            </div>
+            <div class="flex gap-4">
+                <a href="index.html" class="text-gray-600 hover:text-indigo-600">首页</a>
+                <a href="publish.html" class="text-gray-600 hover:text-indigo-600">发布</a>
+                <a href="my.html" class="text-indigo-600 font-medium">我的</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- 用户信息 -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white mb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-3xl">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold">书友用户</h2>
+                    <p class="text-indigo-100 text-sm">加入时间：2024年</p>
+                </div>
+            </div>
+            <div class="flex gap-6 mt-6 text-center">
+                <div>
+                    <div class="text-2xl font-bold" id="myBooksCount">0</div>
+                    <div class="text-xs text-indigo-100">我的发布</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold" id="favCount">0</div>
+                    <div class="text-xs text-indigo-100">我的收藏</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold">0</div>
+                    <div class="text-xs text-indigo-100">交易成功</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 标签切换 -->
+        <div class="bg-white rounded-xl shadow mb-6">
+            <div class="flex border-b">
+                <button onclick="switchTab('published')" id="tab-published" class="flex-1 py-4 text-center font-medium text-indigo-600 border-b-2 border-indigo-600">
+                    我的发布
+                </button>
+                <button onclick="switchTab('favorites')" id="tab-favorites" class="flex-1 py-4 text-center font-medium text-gray-500">
+                    我的收藏
+                </button>
+            </div>
+
+            <!-- 我的发布 -->
+            <div id="content-published" class="p-4">
+                <div id="myBooksList" class="space-y-4">
+                    <!-- 动态生成 -->
+                </div>
+                <div id="empty-published" class="hidden text-center py-12 text-gray-500">
+                    <i class="fas fa-book text-4xl mb-2"></i>
+                    <p>还没有发布书籍</p>
+                    <a href="publish.html" class="text-indigo-600 text-sm mt-2 inline-block">去发布 &rarr;</a>
+                </div>
+            </div>
+
+            <!-- 我的收藏 -->
+            <div id="content-favorites" class="p-4 hidden">
+                <div id="favBooksList" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- 动态生成 -->
+                </div>
+                <div id="empty-favorites" class="hidden text-center py-12 text-gray-500">
+                    <i class="fas fa-heart text-4xl mb-2"></i>
+                    <p>还没有收藏书籍</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            // 切换标签样式
+            document.getElementById('tab-published').className = tab === 'published' 
+                ? 'flex-1 py-4 text-center font-medium text-indigo-600 border-b-2 border-indigo-600'
+                : 'flex-1 py-4 text-center font-medium text-gray-500';
+            document.getElementById('tab-favorites').className = tab === 'favorites'
+                ? 'flex-1 py-4 text-center font-medium text-indigo-600 border-b-2 border-indigo-600'
+                : 'flex-1 py-4 text-center font-medium text-gray-500';
+
+            // 切换内容
+            document.getElementById('content-published').classList.toggle('hidden', tab !== 'published');
+            document.getElementById('content-favorites').classList.toggle('hidden', tab !== 'favorites');
+        }
+
+        function renderMyBooks() {
+            const books = JSON.parse(localStorage.getItem('books') || '[]');
+            const container = document.getElementById('myBooksList');
+            const emptyState = document.getElementById('empty-published');
+            
+            // 简单模拟：显示最近发布的3本作为"我的"
+            const myBooks = books.slice(0, 3);
+            
+            document.getElementById('myBooksCount').textContent = myBooks.length;
+            
+            if (myBooks.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            container.innerHTML = myBooks.map(book => `
+                <div class="flex gap-4 p-3 bg-gray-50 rounded-lg">
+                    <img src="${book.cover}" class="w-20 h-28 object-cover rounded" onerror="this.src='https://via.placeholder.com/100x140?text=No+Cover'">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-800">${book.title}</h3>
+                        <p class="text-sm text-gray-500 mb-2">${book.author}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-red-500 font-bold">¥${book.price}</span>
+                            <span class="text-xs text-gray-400">${book.condition}</span>
+                        </div>
+                        <div class="mt-2 flex gap-2">
+                            <button onclick="editBook(${book.id})" class="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded">编辑</button>
+                            <button onclick="deleteBook(${book.id})" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">删除</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderFavorites() {
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            const allBooks = JSON.parse(localStorage.getItem('books') || '[]');
+            const favBooks = allBooks.filter(b => favorites.includes(b.id));
+            const container = document.getElementById('favBooksList');
+            const emptyState = document.getElementById('empty-favorites');
+            
+            document.getElementById('favCount').textContent = favBooks.length;
+            
+            if (favBooks.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            container.innerHTML = favBooks.map(book => `
+                <div class="cursor-pointer" onclick="location.href='book.html?id=${book.id}'">
+                    <img src="${book.cover}" class="w-full h-40 object-cover rounded-lg mb-2" onerror="this.src='https://via.placeholder.com/300x400?text=No+Cover'">
+                    <h3 class="font-medium text-sm line-clamp-1">${book.title}</h3>
+                    <p class="text-red-500 font-bold text-sm">¥${book.price}</p>
+                </div>
+            `).join('');
+        }
+
+        function deleteBook(id) {
+            if (!confirm('确定要删除这本书吗？')) return;
+            let books = JSON.parse(localStorage.getItem('books') || '[]');
+            books = books.filter(b => b.id !== id);
+            localStorage.setItem('books', JSON.stringify(books));
+            renderMyBooks();
+        }
+
+        function editBook(id) {
+            alert('编辑功能：实际项目中这里会跳转到编辑页面');
+        }
+
+        // 初始化
+        renderMyBooks();
+        renderFavorites();
+    </script>
+</body>
+</html>

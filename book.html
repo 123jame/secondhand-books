@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书籍详情 - 二手书集市</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="location.href='index.html'">
+                <i class="fas fa-arrow-left text-gray-600"></i>
+                <span class="text-lg font-medium text-gray-800">返回</span>
+            </div>
+            <span class="text-lg font-bold text-gray-800">书籍详情</span>
+            <div class="w-8"></div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="md:flex">
+                <div class="md:w-1/3 p-6">
+                    <img id="bookCover" src="" alt="" class="w-full rounded-lg shadow-md">
+                </div>
+                <div class="md:w-2/3 p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span id="bookCategory" class="inline-block bg-indigo-100 text-indigo-600 text-xs px-2 py-1 rounded-full mb-2"></span>
+                            <h1 id="bookTitle" class="text-2xl font-bold text-gray-800 mb-2"></h1>
+                            <p id="bookAuthor" class="text-gray-600"></p>
+                        </div>
+                        <button onclick="toggleFavorite()" class="text-gray-400 hover:text-red-500 text-2xl">
+                            <i id="favIcon" class="far fa-heart"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-baseline gap-3 mb-6">
+                        <span class="text-3xl font-bold text-red-500">¥<span id="bookPrice"></span></span>
+                        <span class="text-gray-400 line-through">¥<span id="originalPrice"></span></span>
+                        <span class="text-green-600 text-sm bg-green-100 px-2 py-1 rounded">省¥<span id="savePrice"></span></span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="text-gray-500">品相</span>
+                            <p id="bookCondition" class="font-medium text-gray-800"></p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="text-gray-500">ISBN</span>
+                            <p id="bookIsbn" class="font-medium text-gray-800"></p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="text-gray-500">所在地</span>
+                            <p id="bookLocation" class="font-medium text-gray-800"></p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="text-gray-500">卖家</span>
+                            <p id="bookSeller" class="font-medium text-gray-800"></p>
+                        </div>
+                    </div>
+
+                    <div class="border-t pt-4 mb-6">
+                        <h3 class="font-bold text-gray-800 mb-2">书籍描述</h3>
+                        <p id="bookDesc" class="text-gray-600 leading-relaxed"></p>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button onclick="contactSeller()" class="flex-1 bg-indigo-600 text-white py-3 rounded-full font-medium hover:bg-indigo-700 transition">
+                            <i class="fas fa-comment-dots mr-2"></i>联系卖家
+                        </button>
+                        <button onclick="buyNow()" class="flex-1 bg-red-500 text-white py-3 rounded-full font-medium hover:bg-red-600 transition">
+                            <i class="fas fa-shopping-cart mr-2"></i>立即购买
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 安全提示 -->
+        <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-start gap-3">
+            <i class="fas fa-shield-alt text-yellow-600 mt-1"></i>
+            <div>
+                <h4 class="font-medium text-yellow-800">交易安全提示</h4>
+                <p class="text-sm text-yellow-700 mt-1">建议当面交易或选择平台担保交易，切勿直接转账给陌生人。检查书籍品相后再确认收货。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookId = parseInt(urlParams.get('id'));
+        let currentBook = null;
+
+        function loadBookDetail() {
+            const books = JSON.parse(localStorage.getItem('books') || '[]');
+            currentBook = books.find(b => b.id === bookId);
+            
+            if (!currentBook) {
+                alert('书籍不存在');
+                location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('bookCover').src = currentBook.cover;
+            document.getElementById('bookTitle').textContent = currentBook.title;
+            document.getElementById('bookAuthor').textContent = currentBook.author;
+            document.getElementById('bookCategory').textContent = currentBook.category;
+            document.getElementById('bookPrice').textContent = currentBook.price;
+            document.getElementById('originalPrice').textContent = currentBook.originalPrice;
+            document.getElementById('savePrice').textContent = currentBook.originalPrice - currentBook.price;
+            document.getElementById('bookCondition').textContent = currentBook.condition;
+            document.getElementById('bookIsbn').textContent = currentBook.isbn;
+            document.getElementById('bookLocation').textContent = currentBook.location;
+            document.getElementById('bookSeller').textContent = currentBook.seller;
+            document.getElementById('bookDesc').textContent = currentBook.description;
+
+            // 检查收藏状态
+            const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            if (favorites.includes(bookId)) {
+                document.getElementById('favIcon').classList.remove('far');
+                document.getElementById('favIcon').classList.add('fas', 'text-red-500');
+            }
+        }
+
+        function toggleFavorite() {
+            let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+            const icon = document.getElementById('favIcon');
+            
+            if (favorites.includes(bookId)) {
+                favorites = favorites.filter(id => id !== bookId);
+                icon.classList.remove('fas', 'text-red-500');
+                icon.classList.add('far');
+            } else {
+                favorites.push(bookId);
+                icon.classList.remove('far');
+                icon.classList.add('fas', 'text-red-500');
+            }
+            
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+
+        function contactSeller() {
+            // 模拟联系功能
+            const msg = encodeURIComponent(`你好，我想咨询《${currentBook.title}》这本书还在吗？`);
+            alert(`模拟功能：将跳转至聊天界面\n\n预设消息：${decodeURIComponent(msg)}`);
+        }
+
+        function buyNow() {
+            alert('模拟购买流程：\n1. 确认订单\n2. 选择支付方式\n3. 等待卖家发货\n\n实际项目中这里会跳转到支付页面');
+        }
+
+        loadBookDetail();
+    </script>
+</body>
+</html>
